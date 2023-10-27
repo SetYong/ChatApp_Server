@@ -20,7 +20,7 @@ public class MultiServer extends JFrame {
 	private Socket socket;
 	JTextArea ta;
 	JTextField tf;
-	private String pass;
+	private String pass, name;
 
 	public MultiServer() {
 		setTitle("채팅 서버 ver 1.0");
@@ -62,6 +62,7 @@ public class MultiServer extends JFrame {
 	class MultiServerThread extends Thread {
 		private Server_DAO dao = new Server_DAO();
 		private ArrayList<Server_VO> Login;
+		private ArrayList<Server_VO> Profile;
 		private ObjectInputStream ois;
 		private ObjectOutputStream oos;
 		@Override
@@ -88,7 +89,21 @@ public class MultiServer extends JFrame {
 				oos.writeObject(pass);
 //				broadCasting(pass);
 				System.out.println(pass);
-		
+				
+//				name = dao.db_username(user_id);
+//				oos.writeObject(name);
+//				System.out.println(name);
+				
+				Profile = dao.user_Profile(user_id);
+				String name = Profile.get(0).getName();
+				String email = Profile.get(0).getEmail();
+				String phone = Profile.get(0).getPhone();
+				int dept_num = Profile.get(0).getDept_num();
+
+				oos.writeObject(name);
+				oos.writeObject(email);
+				oos.writeObject(phone);
+				oos.writeObject(dept_num);
 			} catch (Exception e) {
 				list.remove(this);
 				ta.append("[" + socket.getInetAddress() + "] IP 주소의 사용자께서 비정상 종료하셨습니다.\n");

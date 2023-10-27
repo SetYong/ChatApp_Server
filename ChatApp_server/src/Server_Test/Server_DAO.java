@@ -49,28 +49,60 @@ public class Server_DAO {
 		return login;
 	}
 
-	public String db_username(String id) {
-		String name = null;
+//	public String db_username(String id) {
+//		String name = null;
+//		try {
+//			connDB();
+//			String query = "SELECT name FROM emp where cn ='" + id + "'";
+//			System.out.println("SQL : " + query);
+//			ResultSet rs1 = stmt.executeQuery(query);
+//			rs1.last();
+//			System.out.println("rs1.getRow() : " + rs1.getRow());
+//			if (rs1.getRow() == 0) {
+//				System.out.println("0 row selected .....");
+//			} else {
+//				System.out.println(rs1.getRow() + " rows selected.....");
+//				rs1.previous();
+//				while (rs1.next()) {
+//					name = rs1.getString("name");
+//				}
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		return name;
+//	}
+	
+	public ArrayList<Server_VO> user_Profile(String id) {
+		ArrayList<Server_VO> Profile = new ArrayList<Server_VO>();
+//		String name = null, email = null, phone = null, dept_num = null;
 		try {
 			connDB();
-			String query = "SELECT name FROM emp where cn ='" + id + "'";
+			
+			String query = "SELECT * FROM emp where cn ='" + id + "'";
 			System.out.println("SQL : " + query);
-			ResultSet rs1 = stmt.executeQuery(query);
-			rs1.last();
-			System.out.println("rs1.getRow() : " + rs1.getRow());
-			if (rs1.getRow() == 0) {
+			ResultSet rs2 = stmt.executeQuery(query);
+			rs2.last();
+			System.out.println("rs2.getRow() : " + rs2.getRow());
+			if (rs2.getRow() == 0) {
 				System.out.println("0 row selected .....");
 			} else {
-				System.out.println(rs1.getRow() + " rows selected.....");
-				rs1.previous();
-				while (rs1.next()) {
-					name = rs1.getString("name");
+				System.out.println(rs2.getRow() + " rows selected.....");
+				rs2.previous();
+				while (rs2.next()) {
+					String name = rs2.getString("name");
+					String email = rs2.getString("email");
+					String phone = rs2.getString("phone");
+					int dept_num = rs2.getInt("dept_num");
+					
+					Server_VO profile = new Server_VO(name, email, phone, dept_num);
+					Profile.add(profile);
 				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return name;
+		return Profile;
 	}
 	
 	public void connDB() {
