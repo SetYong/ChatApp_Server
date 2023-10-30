@@ -19,24 +19,15 @@ public class Server_VO {
 		this.dept_num = dept_num;
 	}
 	
-	public String getID() {
-		return id;
-	}
+	public String getID() {return id;}
 	
-	public String getPWD() {
-		return pwd;
-	}
+	public String getPWD() {return pwd;}
 	
-	public String getName() {
-		return name;
-	}
-	public String getEmail() {
-		return email;
-	}
-	public String getPhone() {
-		return phone;
-	}
-	public int getDept_num() {
-		return dept_num;
-	}
+	public String getName() {return name;}
+	
+	public String getEmail() {return email;}
+	
+	public String getPhone() {return phone;}
+	
+	public int getDept_num() {return dept_num;}
 }

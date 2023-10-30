@@ -68,7 +68,7 @@ public class MainServer extends JFrame {
 		
 		@Override
 		public void run() {
-//			boolean isStop = false;
+			boolean isStop = false;
 			try {
 				ois = new ObjectInputStream(socket.getInputStream());
 				oos = new ObjectOutputStream(socket.getOutputStream());
@@ -107,13 +107,20 @@ public class MainServer extends JFrame {
 				oos.writeObject(phone);
 				oos.writeObject(dept_num);
 				
+				String LogOut = (String)ois.readObject();
+				if(LogOut.equals("exit")) {
+					isStop = true;
+					list.remove(this);
+					ta.append("[" + socket.getInetAddress() + "] IP 주소의 사용자께서 정상 종료하셨습니다.\n");
+					tf.setText("남은 사용자 수 : " + list.size());
+				}
 			} catch (Exception e) {
 				list.remove(this);
 				ta.append("[" + socket.getInetAddress() + "] IP 주소의 사용자께서 비정상 종료하셨습니다.\n");
 				tf.setText("남은 사용자 수 : " + list.size());
 			}
 		}
-
+		
 		// 모두에게 전송
 //		public void broadCasting(String message) {
 //			for (MultiServerThread ct : list) {
