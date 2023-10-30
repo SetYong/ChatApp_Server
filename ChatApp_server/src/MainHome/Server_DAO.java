@@ -45,6 +45,8 @@ public class Server_DAO {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			System.out.println("-------------------------------------------------------");
 		}
 		return login;
 	}
@@ -101,6 +103,8 @@ public class Server_DAO {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			System.out.println("-------------------------------------------------------");
 		}
 		return Profile;
 	}
@@ -113,6 +117,7 @@ public class Server_DAO {
 			System.out.println("oracle connection success.");
 			stmt = con.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
 			System.out.println("statement create success.");
+			System.out.println("-------------------------------------------------------");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

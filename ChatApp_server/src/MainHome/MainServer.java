@@ -47,6 +47,7 @@ public class MainServer extends JFrame {
 				mst = new MultiServerThread();
 				list.add(mst);
 				mst.start();
+				tf.setText("남은 사용자 수 : " + list.size());
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -64,9 +65,10 @@ public class MainServer extends JFrame {
 		private ArrayList<Server_VO> Profile;
 		private ObjectInputStream ois;
 		private ObjectOutputStream oos;
+		
 		@Override
 		public void run() {
-			boolean isStop = false;
+//			boolean isStop = false;
 			try {
 				ois = new ObjectInputStream(socket.getInputStream());
 				oos = new ObjectOutputStream(socket.getOutputStream());
@@ -76,8 +78,8 @@ public class MainServer extends JFrame {
 				
 				user_id = (String) ois.readObject();
 				user_pwd = (String) ois.readObject();
-				System.out.println(user_id);
-				System.out.println(user_pwd);
+				System.out.println("USER_ID : " + user_id);
+				System.out.println("USER_PWD : " + user_pwd);
 				
 				Login = dao.Login(user_id);
 				if(Login.size() != 0 && Login.get(0).getPWD().equals(user_pwd)) {
@@ -87,7 +89,8 @@ public class MainServer extends JFrame {
 				}
 				oos.writeObject(pass);
 //				broadCasting(pass);
-				System.out.println(pass);
+				System.out.println("로그인 성공 여부 :"+pass);
+				System.out.println("-------------------------------------------------------");
 				
 //				name = dao.db_username(user_id);
 //				oos.writeObject(name);
@@ -103,6 +106,7 @@ public class MainServer extends JFrame {
 				oos.writeObject(email);
 				oos.writeObject(phone);
 				oos.writeObject(dept_num);
+				
 			} catch (Exception e) {
 				list.remove(this);
 				ta.append("[" + socket.getInetAddress() + "] IP 주소의 사용자께서 비정상 종료하셨습니다.\n");
