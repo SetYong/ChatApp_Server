@@ -1,3 +1,4 @@
+package MainHome;
 import java.awt.BorderLayout;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -11,19 +12,16 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import Server_Test.Server_DAO;
-import Server_Test.Server_VO;
-
-public class MultiServer extends JFrame {
+public class MainServer extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private ArrayList<MultiServerThread> list;
 	private Socket socket;
 	JTextArea ta;
 	JTextField tf;
-	private String pass, name;
+	private String pass;
 
-	public MultiServer() {
-		setTitle("채팅 서버 ver 1.0");
+	public MainServer() {
+		setTitle("메인서버 ver 1.0");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		ta = new JTextArea();
 		add(new JScrollPane(ta));
@@ -32,19 +30,20 @@ public class MultiServer extends JFrame {
 		add(tf, BorderLayout.SOUTH);
 		setSize(500, 500);
 		setVisible(true);
-		// 채팅 관련 코드
+		
+		// 서버 입장
 		list = new ArrayList<MultiServerThread>();
 		try {
 			ServerSocket serverSocket = new ServerSocket(5000);
 			MultiServerThread mst = null;
 			boolean isStop = false;
 			tf.setText("서버 실행\n");
+			ta.append("[Server실행] Client 연결대기중...\n");
 			while (!isStop) {
 				// 클라이언트별 소켓 생성
-				ta.append("[Server실행] Client 연결대기중...\n");
 				socket = serverSocket.accept();
 				ta.append(socket.getInetAddress() + " 연결됨\n");
-				// 채팅 객체 생성
+				// 클라이언트 확인
 				mst = new MultiServerThread();
 				list.add(mst);
 				mst.start();
@@ -55,7 +54,7 @@ public class MultiServer extends JFrame {
 	}
 
 	public static void main(String[] args) {
-		new MultiServer();
+		new MainServer();
 	}
 
 	// 내부 클래스
@@ -112,19 +111,19 @@ public class MultiServer extends JFrame {
 		}
 
 		// 모두에게 전송
-		public void broadCasting(String message) {
-			for (MultiServerThread ct : list) {
-				ct.send(message);
-			}
-		}
+//		public void broadCasting(String message) {
+//			for (MultiServerThread ct : list) {
+//				ct.send(message);
+//			}
+//		}
 
 		// 한 사용자에게 전송
-		public void send(String message) {
-			try {
-				oos.writeObject(message);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
+//		public void send(String message) {
+//			try {
+//				oos.writeObject(message);
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//		}
 	}
 }

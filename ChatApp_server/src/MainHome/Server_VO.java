@@ -1,4 +1,4 @@
-package Server_Test;
+package MainHome;
 
 public class Server_VO {
 	private String id, pwd;
