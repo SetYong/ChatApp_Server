@@ -95,7 +95,7 @@ public class Server_DAO {
 					String name = rs2.getString("name");
 					String email = rs2.getString("email");
 					String phone = rs2.getString("phone");
-					int dept_num = rs2.getInt("dept_num");
+					String dept_num = rs2.getString("dept_num");
 					
 					Server_VO profile = new Server_VO(name, email, phone, dept_num);
 					Profile.add(profile);

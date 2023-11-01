@@ -2,8 +2,7 @@ package MainHome;
 
 public class Server_VO {
 	private String id, pwd;
-	private String name, email, phone;
-	private int dept_num;
+	private String name, email, phone,dept_num;
 	
 	public Server_VO() { }
 	
@@ -12,7 +11,7 @@ public class Server_VO {
 		this.pwd = pwd;
 	}
 	
-	public Server_VO(String name, String email, String phone, int dept_num) {
+	public Server_VO(String name, String email, String phone, String dept_num) {
 		this.name = name;
 		this.email = email;
 		this.phone = phone;
@@ -29,5 +28,5 @@ public class Server_VO {
 	
 	public String getPhone() {return phone;}
 	
-	public int getDept_num() {return dept_num;}
+	public String getDept_num() {return dept_num;}
 }
