@@ -50,30 +50,43 @@ public class Server_DAO {
 		}
 		return login;
 	}
-
-//	public String db_username(String id) {
-//		String name = null;
-//		try {
-//			connDB();
-//			String query = "SELECT name FROM emp where cn ='" + id + "'";
-//			System.out.println("SQL : " + query);
-//			ResultSet rs1 = stmt.executeQuery(query);
-//			rs1.last();
-//			System.out.println("rs1.getRow() : " + rs1.getRow());
-//			if (rs1.getRow() == 0) {
-//				System.out.println("0 row selected .....");
-//			} else {
-//				System.out.println(rs1.getRow() + " rows selected.....");
-//				rs1.previous();
-//				while (rs1.next()) {
-//					name = rs1.getString("name");
-//				}
-//			}
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		return name;
-//	}
+	
+	public ArrayList<Server_VO> pwdUp(String id, String name){
+		ArrayList<Server_VO> Pwdup = new ArrayList<Server_VO>();
+		try {
+			connDB();
+			
+			String query = "SELECT name, cn FROM emp WHERE cn='" + id + "' and '"+name+"'";
+			System.out.println("SQL : " + query);
+			ResultSet rs3 = stmt.executeQuery(query);
+			rs3.last();
+			System.out.println("rs3.getRow() : "+rs3.getRow());
+			if(rs3.getRow() == 0) {
+				System.out.println("0 row selected .......");
+			} else {
+				System.out.println(rs3.getRow()+"rosw selected......");
+				rs3.previous();
+				while(rs3.next()) {
+					String naMe = rs3.getString("name");
+					String cn = rs3.getString("cn");
+					Server_VO pwdup = new Server_VO(naMe,cn);
+					Pwdup.add(pwdup);
+					rs3.close();
+					if(name.equals(naMe) && id.equals(cn)) {
+						query = "UPDATE login SET USER_PWD = '1111' WHERE USER_ID ='"+id+"'";
+						rs3 = stmt.executeQuery(query);
+						rs3.last();
+						System.out.println("초기화 성공");
+					} else {
+						System.out.println("초기화 실패!");
+					}
+				}
+			}
+		} catch (Exception e) {
+			System.out.println("패스워드 초기화 오류");
+		}
+		return Pwdup;
+	}
 	
 	public ArrayList<Server_VO> user_Profile(String id) {
 		ArrayList<Server_VO> Profile = new ArrayList<Server_VO>();
