@@ -199,6 +199,34 @@ public class Server_DAO {
 		return setProfile;
 	}
 	
+	public int nameTreeNum() {
+		int num = 0;
+		try {
+			connDB();
+			String query = "SELECT COUNT(NAME) FROM EMP";
+			ResultSet rsname =stmt.executeQuery(query);
+			num = rsname.getInt("name");
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		return num;
+	}
+	public  ArrayList<Server_VO> nameTree(){
+		 ArrayList<Server_VO> nameTree = new ArrayList<Server_VO>();
+		 try {
+			 connDB();
+			 
+			 String query = "SELECT name FROM EMP";
+			 ResultSet rsTree = stmt.executeQuery(query);
+			 
+			 String name = " ";
+			 
+		 } catch(Exception e) {
+			 e.printStackTrace();
+		 }
+		 return name;
+	}
+	
 	public void connDB() {
 		try {
 			Class.forName(driver);

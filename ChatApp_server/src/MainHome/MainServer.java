@@ -46,7 +46,7 @@ public class MainServer extends JFrame {
 		// 서버 입장
 		list = new ArrayList<MultiServerThread>();
 		try {
-			ServerSocket serverSocket = new ServerSocket(5000);
+			ServerSocket serverSocket = new ServerSocket(5010);
 			System.out.println("서버 실행");
 			MultiServerThread mst = null;
 
@@ -101,7 +101,7 @@ public class MainServer extends JFrame {
 
 				while (true) {
 					String first = (String) ois.readObject();
-					System.out.println(first);
+					System.out.println("f1" + first);
 					String[] seperate = first.split("=0$0=");
 					if (seperate[0].equals("[reset]")) {
 						System.out.println("리셋 진행합니다.");
@@ -147,10 +147,12 @@ public class MainServer extends JFrame {
 
 							while (true) {
 								String second = (String) ois.readObject();
-								String[] seperateChatbySet = second.split("=0$0=");
-								System.out.println(second);
+//								String[] seperateChatbySet = second.split("=0$0=");
+								System.out.println("s2" + second);
+//								System.out.println(seperateChatbySet[0]);
 								
-								if (seperateChatbySet[0].equals("[setprofile]")) {
+								if (second.equals("[setprofile]")) {
+									oos.writeObject("[setprofile]");
 									System.out.println("프로필 변경 요청이 넘어왔다.");
 									String pwd = (String) ois.readObject();
 									String phone = (String) ois.readObject();
@@ -165,14 +167,16 @@ public class MainServer extends JFrame {
 									System.out.println("변경된 사용자 핸드폰번호 : " + setProfile.get(0).getPhone());
 									System.out.println("변경된 사용자 이메일 : " + setProfile.get(0).getEmail());
 									System.out.println("-------------------------------------------------------");
-								} else if (seperateChatbySet[0].equals("[chat]")) {
-									while (true) {
+								} else if (second.equals("[chat]")) {
+//									while (true) {
 										today = new Date();
-										String[] arr = seperateChatbySet[1].split(":");
+										String inp = (String) ois.readObject();
+										System.out.println("inp : "+inp);
+										String[] arr = inp.split(":");
+										System.out.println("arr[1] : "+arr[1]);
 										String sendName = arr[0];
 										String uid = sendName;
 										clientOutputStreams.put(uid, oos);
-										System.out.println(uid + " sent: " + seperateChatbySet[1]);
 										String message = arr[1];
 										String recipient = arr[2];
 										System.out.println("메세지 받앗냐?");
@@ -187,15 +191,20 @@ public class MainServer extends JFrame {
 												ObjectOutputStream recipientOut = clientOutputStreams.get(client);
 												if (recipientOut != null) {
 													// 메시지를 모든 클라이언트에게 보냅니다.
+													recipientOut.writeObject("[chat]");
 													recipientOut
 															.writeObject(sendName + ":" + message + ":" + recipient);
 													recipientOut.flush();
 													System.out.println(timeDate.format(today) + "out / 발신자 : " + name
 															+ " 메세지 : " + message + " 수신자 :" + recipient);
-												}
+//												}
 											}
 										}
 									}
+								} else if(second.equals("[nameTreeNum]")) {
+									int nameNum = dao.nameTreeNum();
+								} else if(second.equals("[nameTree]")) {
+									
 								}
 							}
 						}
@@ -219,19 +228,19 @@ public class MainServer extends JFrame {
 				System.out.println(user_id + " disconnected");
 			}
 
-			finally {
-				today = new Date();
-				list.remove(this);
-				TextArea.append("[" + timeDate.format(today) + "] [" + socket.getInetAddress() + "] IP 주소의 " + user_name
-						+ "님께서 종료하셨습니다.\n");
-				TextField.setText("남은 사용자 수 : " + list.size());
-				try {
-					socket.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			System.out.println("[" + timeDate.format(today) + "] [" + user_name + " 연결종료]");
+//			finally {
+//				today = new Date();
+//				list.remove(this);
+//				TextArea.append("[" + timeDate.format(today) + "] [" + socket.getInetAddress() + "] IP 주소의 " + user_name
+//						+ "님께서 종료하셨습니다.\n");
+//				TextField.setText("남은 사용자 수 : " + list.size());
+//				try {
+//					socket.close();
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//				}
+//			}
+//			System.out.println("[" + timeDate.format(today) + "] [" + user_name + " 연결종료]");
 		}
 
 		public void logintest() {
