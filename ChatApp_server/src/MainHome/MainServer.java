@@ -47,7 +47,7 @@ public class MainServer extends JFrame {
 		list = new ArrayList<MultiServerThread>();
 		try {
 			ServerSocket serverSocket = new ServerSocket(5010);
-			System.out.println("서버 실행");
+			sop("서버 실행");
 			MultiServerThread mst = null;
 
 			boolean isStop = false;
@@ -82,6 +82,8 @@ public class MainServer extends JFrame {
 		private ArrayList<Server_VO> toDoList;
 		private ArrayList<Server_VO> pwdup;
 		private ArrayList<Server_VO> setProfile;
+		private ArrayList<Server_VO> nameTree;
+		private ArrayList<Server_VO> deptList;
 		private ObjectInputStream ois;
 		private ObjectOutputStream oos;
 		private Date today;
@@ -101,25 +103,41 @@ public class MainServer extends JFrame {
 
 				while (true) {
 					String first = (String) ois.readObject();
-					System.out.println("f1" + first);
+					sop("f1" + first);
 					String[] seperate = first.split("=0$0=");
 					if (seperate[0].equals("[reset]")) {
-						System.out.println("리셋 진행합니다.");
+						sop("리셋 진행합니다.");
 						String id = (String) ois.readObject();
 						String name = (String) ois.readObject();
-						System.out.println("초기화 요청 ID : " + id);
-						System.out.println("초기화 요청 NAME : " + name);
+						sop("초기화 요청 ID : " + id);
+						sop("초기화 요청 NAME : " + name);
 
 						pwdup = dao.pwdUp(id, name);
 						oos.writeObject(pwdup.get(0).getID());
 						oos.writeObject(pwdup.get(0).getPWD());
 
-						System.out.println("-------------------------------------------------------");
-						System.out.println("초기화 한 사원 사번 : " + pwdup.get(0).getID());
-						System.out.println("초기화 한 사원 이름 : " + pwdup.get(0).getPWD());
-						System.out.println("-------------------------------------------------------");
+						sop("-------------------------------------------------------");
+						sop("초기화 한 사원 사번 : " + pwdup.get(0).getID());
+						sop("초기화 한 사원 이름 : " + pwdup.get(0).getPWD());
+						sop("-------------------------------------------------------");
+
+					} else if (seperate[0].equals("[SignUpDept]")) {
+						sop("signupdept 요청");
+						deptList = dao.deptList();
+						oos.writeObject(deptList.size());
+						String deptName = "";
+
+						for (int i = 0; i < deptList.size(); i++) {
+							Server_VO data = (Server_VO) deptList.get(i);
+							deptName = data.getName();
+							sop(deptName);
+
+							oos.writeObject(deptName);
+						}
+
 					} else if (seperate[0].equals("[login]")) {
-						System.out.println("로그인 진행합니다.");
+
+						sop("로그인 진행합니다.");
 						while (true) {
 //							if (refreshRequested) {
 //								// 새로고침 동작 또는 메시지 교환
@@ -127,84 +145,107 @@ public class MainServer extends JFrame {
 //								oos.flush();
 //								refreshRequested = false;
 //							}
-							System.out.println("정보 읽기 ");
+							sop("정보 읽기 ");
 							today = new Date();
 							user_id = (String) ois.readObject();
 							user_pwd = (String) ois.readObject();
-							System.out.println("USER_ID : " + user_id);
-							System.out.println("USER_PWD : " + user_pwd);
+							sop("USER_ID : " + user_id);
+							sop("USER_PWD : " + user_pwd);
 
 							Login = dao.Login(user_id);
 							if (Login.size() != 0 && Login.get(0).getPWD().equals(user_pwd)) {
 								pass = "true";
-								System.out.println(timeDate.format(today) + "로그인 성공");
+								sop(timeDate.format(today) + "로그인 성공");
 								logintest();
 //							toDotest();
 							} else {
 								pass = "false";
-								System.out.println(timeDate.format(today) + "로그인 실패");
+								sop(timeDate.format(today) + "로그인 실패");
 							}
 
 							while (true) {
 								String second = (String) ois.readObject();
 //								String[] seperateChatbySet = second.split("=0$0=");
-								System.out.println("s2" + second);
-//								System.out.println(seperateChatbySet[0]);
-								
+								sop("s2" + second);
+//								sop(seperateChatbySet[0]);
+
 								if (second.equals("[setprofile]")) {
 									oos.writeObject("[setprofile]");
-									System.out.println("프로필 변경 요청이 넘어왔다.");
+									sop("프로필 변경 요청이 넘어왔다.");
 									String pwd = (String) ois.readObject();
 									String phone = (String) ois.readObject();
 									String email = (String) ois.readObject();
-									System.out.println("프로필 변경 부분 다 읽었당");
+									sop("프로필 변경 부분 다 읽었당");
 									setProfile = dao.setProfile(user_id, pwd, phone, email);
 									oos.writeObject(setProfile.get(0).getPWD());
 									oos.writeObject(setProfile.get(0).getPhone());
 									oos.writeObject(setProfile.get(0).getEmail());
-									System.out.println("-------------------------------------------------------");
-									System.out.println("변경된 사용자 패스워드 : " + setProfile.get(0).getPWD());
-									System.out.println("변경된 사용자 핸드폰번호 : " + setProfile.get(0).getPhone());
-									System.out.println("변경된 사용자 이메일 : " + setProfile.get(0).getEmail());
-									System.out.println("-------------------------------------------------------");
+									sop("-------------------------------------------------------");
+									sop("변경된 사용자 패스워드 : " + setProfile.get(0).getPWD());
+									sop("변경된 사용자 핸드폰번호 : " + setProfile.get(0).getPhone());
+									sop("변경된 사용자 이메일 : " + setProfile.get(0).getEmail());
+									sop("-------------------------------------------------------");
+								} else if (second.equals("[Todo]")) {
+									sop("Todo 요청");
+									oos.writeObject("[Todo]");
+
+									String userID = (String) ois.readObject();
+									String doing = (String) ois.readObject();
+									String state = (String) ois.readObject();
+
+									toDoList = dao.toDoList(userID, doing, state);
+
+								} else if (second.equals("[nameTree]")) {
+									sop("nameTree 요청이 들어왔다");
+									oos.writeObject("[nameTree]");
+									sop("nameTree보냈따");
+									String inpName = (String) ois.readObject();
+									sop(inpName);
+									nameTree = dao.nameTree(inpName);
+									oos.writeObject(nameTree.size());
+
+									String listname = "";
+									for (int i = 0; i < nameTree.size(); i++) {
+										Server_VO data = (Server_VO) nameTree.get(i);
+										listname = data.getName();
+										sop(listname);
+
+										oos.writeObject(listname);
+									}
+									sop("nametree 끝낫을지도?");
 								} else if (second.equals("[chat]")) {
 //									while (true) {
-										today = new Date();
-										String inp = (String) ois.readObject();
-										System.out.println("inp : "+inp);
-										String[] arr = inp.split(":");
-										System.out.println("arr[1] : "+arr[1]);
-										String sendName = arr[0];
-										String uid = sendName;
-										clientOutputStreams.put(uid, oos);
-										String message = arr[1];
-										String recipient = arr[2];
-										System.out.println("메세지 받앗냐?");
-										Profile = dao.user_Profile(sendName);
-										String name = Profile.get(0).getName();
-										System.out.println(timeDate.format(today) + "in / 발신자 : " + sendName + "이름 : "
-												+ name + "메세지 :" + message + " 수신자 :" + recipient);
+									today = new Date();
+									String inp = (String) ois.readObject();
+									sop("inp : " + inp);
+									String[] arr = inp.split(":");
+									sop("arr[1] : " + arr[1]);
+									String sendName = arr[0];
+									String uid = sendName;
+									clientOutputStreams.put(uid, oos);
+									String message = arr[1];
+									String recipient = arr[2];
+									sop("메세지 받앗냐?");
+									Profile = dao.user_Profile(sendName);
+									String name = Profile.get(0).getName();
+									sop(timeDate.format(today) + "in / 발신자 : " + sendName + "이름 : "
+											+ name + "메세지 :" + message + " 수신자 :" + recipient);
 
-										// 클라이언트 간 메시지 중계
-										for (String client : clientOutputStreams.keySet()) {
-											if (!client.equals(sendName)) { // 발신자에게는 메시지를 보내지 않도록 변경
-												ObjectOutputStream recipientOut = clientOutputStreams.get(client);
-												if (recipientOut != null) {
-													// 메시지를 모든 클라이언트에게 보냅니다.
-													recipientOut.writeObject("[chat]");
-													recipientOut
-															.writeObject(sendName + ":" + message + ":" + recipient);
-													recipientOut.flush();
-													System.out.println(timeDate.format(today) + "out / 발신자 : " + name
-															+ " 메세지 : " + message + " 수신자 :" + recipient);
+									// 클라이언트 간 메시지 중계
+									for (String client : clientOutputStreams.keySet()) {
+										if (!client.equals(sendName)) { // 발신자에게는 메시지를 보내지 않도록 변경
+											ObjectOutputStream recipientOut = clientOutputStreams.get(client);
+											if (recipientOut != null) {
+												// 메시지를 모든 클라이언트에게 보냅니다.
+												recipientOut.writeObject("[chat]");
+												recipientOut.writeObject(sendName + ":" + message + ":" + recipient);
+												recipientOut.flush();
+												sop(timeDate.format(today) + "out / 발신자 : " + name
+														+ " 메세지 : " + message + " 수신자 :" + recipient);
 //												}
 											}
 										}
 									}
-								} else if(second.equals("[nameTreeNum]")) {
-									int nameNum = dao.nameTreeNum();
-								} else if(second.equals("[nameTree]")) {
-									
 								}
 							}
 						}
@@ -219,13 +260,13 @@ public class MainServer extends JFrame {
 				TextArea.append("[ERROR] [" + timeDate.format(today) + "] [" + socket.getInetAddress() + "] IP 주소의 "
 						+ user_name + "님께서 비정상 종료하셨습니다.\n");
 				TextField.setText("남은 사용자 수 : " + list.size());
-				System.out.println("[Error] [" + timeDate.format(today) + "] [" + user_name + " 비정상 종료]");
-				System.out.println(
+				sop("[Error] [" + timeDate.format(today) + "] [" + user_name + " 비정상 종료]");
+				sop(
 						"==========================================================================================");
 
 				// 변경: 클라이언트 연결 종료 시 clientOutputStreams에서 해당 클라이언트 제거
 				clientOutputStreams.remove(user_id);
-				System.out.println(user_id + " disconnected");
+				sop(user_id + " disconnected");
 			}
 
 //			finally {
@@ -240,14 +281,14 @@ public class MainServer extends JFrame {
 //					e.printStackTrace();
 //				}
 //			}
-//			System.out.println("[" + timeDate.format(today) + "] [" + user_name + " 연결종료]");
+//			sop("[" + timeDate.format(today) + "] [" + user_name + " 연결종료]");
 		}
 
 		public void logintest() {
 			try {
 				oos.writeObject(pass);
-				System.out.println("로그인 성공 여부 :" + pass);
-				System.out.println("-------------------------------------------------------");
+				sop("로그인 성공 여부 :" + pass);
+				sop("-------------------------------------------------------");
 
 				Profile = dao.user_Profile(user_id);
 				user_name = Profile.get(0).getName();
@@ -255,37 +296,37 @@ public class MainServer extends JFrame {
 				String email = Profile.get(0).getEmail();
 				String phone = Profile.get(0).getPhone();
 				String dept_num = Profile.get(0).getDept_num();
-				System.out.println(name);
+				sop(name);
 				oos.writeObject(name);
 				oos.writeObject(email);
 				oos.writeObject(phone);
 				oos.writeObject(dept_num);
 
-				System.out.println("사용자 정보 넘어가나?");
+				sop("사용자 정보 넘어가나?");
 			} catch (Exception e) {
-				System.out.println("로그인 실패");
+				sop("로그인 실패");
 			}
 		}
 
-		public void toDotest() {
-			try {
-				oos.writeObject(pass);
-				System.out.println("TODOTEST");
-
-				toDoList = dao.toDoList(user_id);
-				String cn = toDoList.get(0).getID();
-				String doing = toDoList.get(0).getDoing();
-				String done = toDoList.get(0).getDone();
-				int todoIndex = toDoList.get(0).toDoIndex();
-
-				oos.writeObject(cn);
-				oos.writeObject(doing);
-				oos.writeObject(done);
-				oos.writeInt(todoIndex);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+//		public void toDotest() {
+//			try {
+//				oos.writeObject(pass);
+//				sop("TODOTEST");
+//
+//				toDoList = dao.toDoList(user_id);
+//				String cn = toDoList.get(0).getID();
+//				String doing = toDoList.get(0).getDoing();
+//				String done = toDoList.get(0).getDone();
+//				int todoIndex = toDoList.get(0).toDoIndex();
+//
+//				oos.writeObject(cn);
+//				oos.writeObject(doing);
+//				oos.writeObject(done);
+//				oos.writeInt(todoIndex);
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+//		}
 
 	}
 
@@ -293,5 +334,9 @@ public class MainServer extends JFrame {
 		for (MultiServerThread clientThread : list) {
 			clientThread.sendRefreshSignal();
 		}
+	}
+
+	public void sop(String text) {
+		System.out.println(text);
 	}
 }

@@ -63,21 +63,21 @@ public class Server_DAO {
 			System.out.println("rs3.getRow() : " + rs3.getRow());
 			if (rs3.getRow() == 0) {
 				System.out.println("0 row selected .......");
-			} else if(rs3.getRow()==1){
+			} else if (rs3.getRow() == 1) {
 				System.out.println(rs3.getRow() + "rosw selected......");
 				rs3.previous();
-				
+
 				while (rs3.next()) {
 					String cn = rs3.getString("cn");
 					String naMe = rs3.getString("name");
-					
+
 					Server_VO pwdup = new Server_VO(cn, naMe);
 					Pwdup.add(pwdup);
 				}
 				query = "UPDATE login SET USER_PWD = '1111' WHERE USER_ID ='" + id + "'";
 				rs3 = stmt.executeQuery(query);
 				System.out.println("초기화 성공");
-			}else {
+			} else {
 				System.out.println("초기화 실패");
 			}
 		} catch (Exception e) {
@@ -120,47 +120,40 @@ public class Server_DAO {
 		return Profile;
 	}
 
-	public ArrayList<Server_VO> toDoList(String id) {
+	public ArrayList<Server_VO> toDoList(String id, String doing, String state) {
 		ArrayList<Server_VO> todoList = new ArrayList<Server_VO>();
-		String state = "";
-		int index = 1;
+		
 		try {
 			connDB();
 			String query = "SELECT * FROM TODO where cn = '" + id + "'";
 			ResultSet toDoResultSet = stmt.executeQuery(query);
 			toDoResultSet.last();
-
 			System.out.println("SQL : " + query);
 			System.out.println("toDoResultSet.getRow() : " + toDoResultSet.getRow());
 
 			if (state.equals("add")) {
-				query = "insert into todo values ('" + id + "',  '내용', '완료여부', "+ index +"";
+				query = "insert into todo values ('" + id + "',  '"+doing+"')";
 				toDoResultSet = stmt.executeQuery(query);
-				toDoResultSet.last();
 
 				System.out.println("SQL : " + query);
 			} else if (state.equals("delete")) {
-				query = "delete from todo where cn = '" + id + "' and todoindex = '" + index + "'";
+				query = "delete from todo where cn = '" + id + "' and  doing= '"+ doing +"'" ;
 				toDoResultSet = stmt.executeQuery(query);
-				toDoResultSet.last();
 
 				System.out.println("SQL : " + query);
-			} else {
-				if (toDoResultSet.getRow() == 0) {
-					System.out.println("0 row selected .....");
-				} else {
-					System.out.println(toDoResultSet.getRow() + " rows selected.....");
-					toDoResultSet.previous();
-					while (toDoResultSet.next()) {
-//						String cn = toDoResultSet.getString("cn");
-						String doing = toDoResultSet.getString("doing");
-						String done = toDoResultSet.getString("done");
-						int toDoIndex = toDoResultSet.getInt("todoindex");
-
-						Server_VO todolist = new Server_VO(id, doing, done, toDoIndex);
-						todoList.add(todolist);
-					}
-				}
+//			} else {
+//				if (toDoResultSet.getRow() == 0) {
+//					System.out.println("0 row selected .....");
+//				} else {
+//					System.out.println(toDoResultSet.getRow() + " rows selected.....");
+//					toDoResultSet.previous();
+//					while (toDoResultSet.next()) {
+//						String doIng = toDoResultSet.getString("doing");
+//						
+//						Server_VO todolist = new Server_VO(id, doIng);
+//						todoList.add(todolist);
+//					}
+//				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -168,65 +161,102 @@ public class Server_DAO {
 		return todoList;
 	}
 
-	public ArrayList<Server_VO> setProfile(String id, String pwd, String phone, String email){
+	public ArrayList<Server_VO> setProfile(String id, String pwd, String phone, String email) {
 		ArrayList<Server_VO> setProfile = new ArrayList<Server_VO>();
 		try {
 			connDB();
 			String setPwd, setPhone, setEmail;
-			if(!pwd.equals(null)) {
-				setPwd= pwd;
-				String query1 = "UPDATE login SET USER_PWD = '"+pwd+"' WHERE USER_ID ='"+id+"'";
+			if (!pwd.equals(null)) {
+				setPwd = pwd;
+				String query1 = "UPDATE login SET USER_PWD = '" + pwd + "' WHERE USER_ID ='" + id + "'";
 				ResultSet rsSetProfile = stmt.executeQuery(query1);
 			}
-			if(!phone.equals(null)) {
-				setPhone=phone;
-				String query2 = "UPDATE emp SET PHONE = '"+phone+"' WHERE CN ='"+id+"'";
+			if (!phone.equals(null)) {
+				setPhone = phone;
+				String query2 = "UPDATE emp SET PHONE = '" + phone + "' WHERE CN ='" + id + "'";
 				ResultSet rsSetProfile = stmt.executeQuery(query2);
 			}
-			if(!email.equals(null)) {
+			if (!email.equals(null)) {
 				setEmail = email;
-				String query3 = "UPDATE emp SET EMAIL = '"+email+"' WHERE CN ='"+id+"'";
+				String query3 = "UPDATE emp SET EMAIL = '" + email + "' WHERE CN ='" + id + "'";
 				ResultSet rsSetProfile = stmt.executeQuery(query3);
 			}
-			System.out.println(pwd+"=="+phone+"=="+email);
-			Server_VO data = new Server_VO(pwd,phone,email);
+			System.out.println(pwd + "==" + phone + "==" + email);
+			Server_VO data = new Server_VO(pwd, phone, email);
 			setProfile.add(data);
 
-		} catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
-			
+
 		}
 		return setProfile;
 	}
-	
-	public int nameTreeNum() {
-		int num = 0;
+
+	public ArrayList<Server_VO> nameTree(String user_name) {
+		ArrayList<Server_VO> nameTree = new ArrayList<Server_VO>();
 		try {
 			connDB();
-			String query = "SELECT COUNT(NAME) FROM EMP";
-			ResultSet rsname =stmt.executeQuery(query);
-			num = rsname.getInt("name");
-		} catch(Exception e) {
+
+			String query = "SELECT name FROM EMP";
+			if (user_name != null) {
+				query += " WHERE name LIKE '%" + user_name+ "%'";
+			}
+			ResultSet rsTree = stmt.executeQuery(query);
+			rsTree.last();
+			System.out.println("SQL : " + query);
+			System.out.println("rs2.getRow() : " + rsTree.getRow());
+			
+			if (rsTree.getRow() == 0) {
+				System.out.println("0 row selected .....");
+			} else {
+				System.out.println(rsTree.getRow() + " rows selected.....");
+				rsTree.beforeFirst();
+				while (rsTree.next()) {
+					System.out.println("");
+					String name = rsTree.getString("name");
+					System.out.println("dao rsTree while : "+ name);
+					Server_VO data = new Server_VO(name);
+					nameTree.add(data);
+				}
+			}
+			if(rsTree!=null) rsTree.close();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return num;
-	}
-	public  ArrayList<Server_VO> nameTree(){
-		 ArrayList<Server_VO> nameTree = new ArrayList<Server_VO>();
-		 try {
-			 connDB();
-			 
-			 String query = "SELECT name FROM EMP";
-			 ResultSet rsTree = stmt.executeQuery(query);
-			 
-			 String name = " ";
-			 
-		 } catch(Exception e) {
-			 e.printStackTrace();
-		 }
-		 return name;
+		return nameTree;
 	}
 	
+	public ArrayList<Server_VO> deptList() {
+		ArrayList<Server_VO> deptList = new ArrayList<Server_VO>();
+		try {
+			connDB();
+
+			String query = "SELECT DEPT_NAME FROM DEPARTMENT";
+			ResultSet rsDept = stmt.executeQuery(query);
+			rsDept.last();
+			System.out.println("SQL : " + query);
+			System.out.println("rs2.getRow() : " + rsDept.getRow());
+			
+			if (rsDept.getRow() == 0) {
+				System.out.println("0 row selected .....");
+			} else {
+				System.out.println(rsDept.getRow() + " rows selected.....");
+				rsDept.beforeFirst();
+				while (rsDept.next()) {
+					System.out.println("");
+					String deptName = rsDept.getString("DEPT_NAME");
+					System.out.println("dao rsTree while : "+ deptName);
+					Server_VO data = new Server_VO(deptName);
+					deptList.add(data);
+				}
+			}
+			if(rsDept!=null) rsDept.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return deptList;
+	}
+
 	public void connDB() {
 		try {
 			Class.forName(driver);

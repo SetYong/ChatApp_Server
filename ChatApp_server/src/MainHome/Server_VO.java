@@ -7,6 +7,10 @@ public class Server_VO {
 	
 	public Server_VO() { }
 	
+	public Server_VO(String name) {
+		this.name = name;	
+	}
+	
 	public Server_VO(String id, String pwd) {
 		this.id = id;
 		this.pwd = pwd;
