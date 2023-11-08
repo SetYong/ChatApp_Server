@@ -16,6 +16,42 @@ public class Server_DAO {
 	private Statement stmt;
 	private ResultSet rs;
 
+	public void newUser(String name, String cn, String dept){
+		try {
+			String sequery = "SELECT dept_ID from DEPARTMENT where dept_name = '"+dept+"'";
+			rs = stmt.executeQuery(sequery);
+			rs.last();
+			int deptNum = rs.getInt("dept_ID");
+
+			System.out.println("SELECT SQL : " + sequery);
+			System.out.println("rs.getRow() : " + rs.getRow());
+			
+			String query = "Insert into emp Values ('"+ cn +"', '"+name+"', '000@000.000', '010-0000-0000', "+deptNum+", 00,0,'image')";
+			stmt.executeQuery(query);
+			
+			System.out.println("emp SQL : " + query);
+			
+			query = "Insert into login Values ('"+ cn +"', 1234)";
+			stmt.executeQuery(query);
+
+			System.out.println("login SQL : " + query);
+			
+			query = "SELECT OFFICE FROM EMP_POS WHERE DEPTID="+deptNum+"";
+			rs = stmt.executeQuery(query);
+			rs.last();
+			
+			System.out.println("emp_pos SELECT SQL : " + query);
+			
+			String office = rs.getString("OFFICE");
+			query = "Insert into emp_pos Values('팀원','"+cn+"','"+office+"',"+deptNum+")";
+			stmt.executeQuery(query);
+
+			System.out.println("emp_pos SQL : " + query);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public ArrayList<Server_VO> Login(String id) {
 		ArrayList<Server_VO> login = new ArrayList<Server_VO>();
 		try {
@@ -161,6 +197,29 @@ public class Server_DAO {
 		return todoList;
 	}
 
+	public String receivetoDoList(String id){
+		String ab = null;
+		try {
+			connDB();
+			String query = "SELECT doing FROM TODO where cn = '" + id + "'";
+			ResultSet toDoResultSet = stmt.executeQuery(query);
+			toDoResultSet.beforeFirst();
+			System.out.println("SQL : " + query);
+			System.out.println("toDoResultSet.getRow() : " + toDoResultSet.getRow());
+			StringBuilder sb = new StringBuilder();
+			while(toDoResultSet.next()) {
+				String todorsStr = toDoResultSet.getString("doing");
+				System.out.println("reStr" + todorsStr);
+				sb.append(todorsStr + "//");
+			}
+			ab = sb.toString();
+			System.out.println("retodo : " + ab);
+		}	catch (Exception e ) {
+			e.printStackTrace();
+		}
+		return ab;
+	}
+	
 	public ArrayList<Server_VO> setProfile(String id, String pwd, String phone, String email) {
 		ArrayList<Server_VO> setProfile = new ArrayList<Server_VO>();
 		try {

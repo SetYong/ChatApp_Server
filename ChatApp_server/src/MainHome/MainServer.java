@@ -30,7 +30,7 @@ public class MainServer extends JFrame {
 	private Date today = new Date();;
 	private SimpleDateFormat timeDate = new SimpleDateFormat("HH:mm:ss a");
 
-	private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+//	private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
 
 	public MainServer() {
 		setTitle("메인서버 ver 1.0");
@@ -46,7 +46,7 @@ public class MainServer extends JFrame {
 		// 서버 입장
 		list = new ArrayList<MultiServerThread>();
 		try {
-			ServerSocket serverSocket = new ServerSocket(5010);
+			ServerSocket serverSocket = new ServerSocket(5020);
 			sop("서버 실행");
 			MultiServerThread mst = null;
 
@@ -67,7 +67,7 @@ public class MainServer extends JFrame {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		executorService.scheduleAtFixedRate(() -> refreshAllClients(), 0, 10, TimeUnit.SECONDS);
+//		executorService.scheduleAtFixedRate(() -> refreshAllClients(), 0, 10, TimeUnit.SECONDS);
 	}
 
 	public static void main(String[] args) {
@@ -89,11 +89,11 @@ public class MainServer extends JFrame {
 		private Date today;
 		String user_id = null, user_pwd = null, user_name = null;
 		private SimpleDateFormat timeDate = new SimpleDateFormat("HH:mm:ss a");
-		private boolean refreshRequested = false;
+//		private boolean refreshRequested = false;
 
-		public void sendRefreshSignal() {
-			refreshRequested = true;
-		}
+//		public void sendRefreshSignal() {
+//			refreshRequested = true;
+//		}
 
 		@Override
 		public void run() {
@@ -103,8 +103,9 @@ public class MainServer extends JFrame {
 
 				while (true) {
 					String first = (String) ois.readObject();
-					sop("f1" + first);
+					sop("first : " + first);
 					String[] seperate = first.split("=0$0=");
+					
 					if (seperate[0].equals("[reset]")) {
 						sop("리셋 진행합니다.");
 						String id = (String) ois.readObject();
@@ -120,8 +121,10 @@ public class MainServer extends JFrame {
 						sop("초기화 한 사원 사번 : " + pwdup.get(0).getID());
 						sop("초기화 한 사원 이름 : " + pwdup.get(0).getPWD());
 						sop("-------------------------------------------------------");
-
-					} else if (seperate[0].equals("[SignUpDept]")) {
+					} 
+					
+					
+					else if (seperate[0].equals("[SignUpDept]")) {
 						sop("signupdept 요청");
 						deptList = dao.deptList();
 						oos.writeObject(deptList.size());
@@ -134,9 +137,22 @@ public class MainServer extends JFrame {
 
 							oos.writeObject(deptName);
 						}
-
-					} else if (seperate[0].equals("[login]")) {
-
+						sop((String)ois.readObject());
+						if (true) {
+							sop("newUser 요청 새로운 노예는환영이야");
+							String newName = (String)ois.readObject();
+							String newCn = (String)ois.readObject();
+							String newDept = (String)ois.readObject();
+							sop("newName : "+newName+" newCn : "+newCn+" newDept : "+newDept);
+							dao.newUser(newName, newCn, newDept);
+							sop("사원 계정 생성 완료");
+						}
+						sop("Signupdept 끝!");
+					}  
+					
+					
+					
+					else if (seperate[0].equals("[login]")) {
 						sop("로그인 진행합니다.");
 						while (true) {
 //							if (refreshRequested) {
@@ -155,18 +171,22 @@ public class MainServer extends JFrame {
 							Login = dao.Login(user_id);
 							if (Login.size() != 0 && Login.get(0).getPWD().equals(user_pwd)) {
 								pass = "true";
-								sop(timeDate.format(today) + "로그인 성공");
+								sop(timeDate.format(today) + " 로그인 성공");
 								logintest();
-//							toDotest();
+								sop("성공");
+								// toDotest();
 							} else {
 								pass = "false";
-								sop(timeDate.format(today) + "로그인 실패");
+								sop(timeDate.format(today) + " 로그인 실패");
+								oos.writeObject(pass);
+								sop("실패");
+								break;
 							}
 
 							while (true) {
 								String second = (String) ois.readObject();
 //								String[] seperateChatbySet = second.split("=0$0=");
-								sop("s2" + second);
+								sop("Second : " + second);
 //								sop(seperateChatbySet[0]);
 
 								if (second.equals("[setprofile]")) {
@@ -228,8 +248,8 @@ public class MainServer extends JFrame {
 									sop("메세지 받앗냐?");
 									Profile = dao.user_Profile(sendName);
 									String name = Profile.get(0).getName();
-									sop(timeDate.format(today) + "in / 발신자 : " + sendName + "이름 : "
-											+ name + "메세지 :" + message + " 수신자 :" + recipient);
+									sop(timeDate.format(today) + "in / 발신자 : " + sendName + "이름 : " + name + "메세지 :"
+											+ message + " 수신자 :" + recipient);
 
 									// 클라이언트 간 메시지 중계
 									for (String client : clientOutputStreams.keySet()) {
@@ -240,8 +260,8 @@ public class MainServer extends JFrame {
 												recipientOut.writeObject("[chat]");
 												recipientOut.writeObject(sendName + ":" + message + ":" + recipient);
 												recipientOut.flush();
-												sop(timeDate.format(today) + "out / 발신자 : " + name
-														+ " 메세지 : " + message + " 수신자 :" + recipient);
+												sop(timeDate.format(today) + "out / 발신자 : " + name + " 메세지 : " + message
+														+ " 수신자 :" + recipient);
 //												}
 											}
 										}
@@ -249,6 +269,7 @@ public class MainServer extends JFrame {
 								}
 							}
 						}
+						System.out.println("aa");
 					}
 				}
 			}
@@ -261,8 +282,7 @@ public class MainServer extends JFrame {
 						+ user_name + "님께서 비정상 종료하셨습니다.\n");
 				TextField.setText("남은 사용자 수 : " + list.size());
 				sop("[Error] [" + timeDate.format(today) + "] [" + user_name + " 비정상 종료]");
-				sop(
-						"==========================================================================================");
+				sop("==========================================================================================");
 
 				// 변경: 클라이언트 연결 종료 시 clientOutputStreams에서 해당 클라이언트 제거
 				clientOutputStreams.remove(user_id);
@@ -296,45 +316,28 @@ public class MainServer extends JFrame {
 				String email = Profile.get(0).getEmail();
 				String phone = Profile.get(0).getPhone();
 				String dept_num = Profile.get(0).getDept_num();
+
 				sop(name);
 				oos.writeObject(name);
 				oos.writeObject(email);
 				oos.writeObject(phone);
 				oos.writeObject(dept_num);
 
+				String reTodo = dao.receivetoDoList(user_id);
+				oos.writeObject(reTodo);
+
 				sop("사용자 정보 넘어가나?");
 			} catch (Exception e) {
 				sop("로그인 실패");
 			}
 		}
+	}
 
-//		public void toDotest() {
-//			try {
-//				oos.writeObject(pass);
-//				sop("TODOTEST");
-//
-//				toDoList = dao.toDoList(user_id);
-//				String cn = toDoList.get(0).getID();
-//				String doing = toDoList.get(0).getDoing();
-//				String done = toDoList.get(0).getDone();
-//				int todoIndex = toDoList.get(0).toDoIndex();
-//
-//				oos.writeObject(cn);
-//				oos.writeObject(doing);
-//				oos.writeObject(done);
-//				oos.writeInt(todoIndex);
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			}
+//	private void refreshAllClients() {
+//		for (MultiServerThread clientThread : list) {
+//			clientThread.sendRefreshSignal();
 //		}
-
-	}
-
-	private void refreshAllClients() {
-		for (MultiServerThread clientThread : list) {
-			clientThread.sendRefreshSignal();
-		}
-	}
+//	}
 
 	public void sop(String text) {
 		System.out.println(text);
