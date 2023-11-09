@@ -2,9 +2,12 @@ package MainHome;
 
 import java.awt.BorderLayout;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
@@ -47,7 +50,7 @@ public class MainServer extends JFrame {
 		// 서버 입장
 		list = new ArrayList<MultiServerThread>();
 		try {
-			ServerSocket serverSocket = new ServerSocket(5010);
+			ServerSocket serverSocket = new ServerSocket(5020);
 			sop("서버 실행");
 			MultiServerThread mst = null;
 
@@ -88,6 +91,8 @@ public class MainServer extends JFrame {
 		private ObjectInputStream ois;
 		private ObjectOutputStream oos;
 		private Date today;
+		private String newCn;
+		private String filePath;
 		String user_id = null, user_pwd = null, user_name = null;
 		private SimpleDateFormat timeDate = new SimpleDateFormat("HH:mm:ss a");
 //		private boolean refreshRequested = false;
@@ -101,7 +106,17 @@ public class MainServer extends JFrame {
 			try {
 				ois = new ObjectInputStream(socket.getInputStream());
 				oos = new ObjectOutputStream(socket.getOutputStream());
-
+				
+//				byte[] byteImage;
+//				File imageFile = new File("C:/Users/Manic-063/git/repository/ChatApp_server/src/IMAGE/LOGO.png");
+//				BufferedImage buffImage = ImageIO.read(imageFile);
+//				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//				ImageIO.write(buffImage, "png", baos);
+//				baos.flush();
+//				byteImage = baos.toByteArray();
+//				
+//				oos.writeObject(byteImage);
+//				
 				while (true) {
 					String first = (String) ois.readObject();
 					sop("first : " + first);
@@ -141,10 +156,15 @@ public class MainServer extends JFrame {
 						if (true) {
 							sop("newUser 요청 새로운 노예는환영이야");
 							String newName = (String) ois.readObject();
-							String newCn = (String) ois.readObject();
+							newCn = (String) ois.readObject();
 							String newDept = (String) ois.readObject();
+							saveImage() ;
+							
 							sop("newName : " + newName + " newCn : " + newCn + " newDept : " + newDept);
-							dao.newUser(newName, newCn, newDept);
+							dao.newUser(newName, newCn, newDept, filePath);
+							
+							
+							
 							sop("사원 계정 생성 완료");
 						}
 						sop("Signupdept 끝!");
@@ -302,8 +322,26 @@ public class MainServer extends JFrame {
 //			sop("[" + timeDate.format(today) + "] [" + user_name + " 연결종료]");
 		}
 
-		public void imagesend() {
-
+		public void saveImage() throws IOException, ClassNotFoundException{
+			byte [] receiveImage = (byte [])ois.readObject();
+			BufferedImage image = ImageIO.read(new ByteArrayInputStream(receiveImage));
+			
+			String systemName = System.getProperty("user.home");
+			filePath = systemName + "/git/repository/ChatApp_server/src/IMAGE/" + newCn + ".jpg";
+			File file = new File(filePath);
+			File parentDir = file.getParentFile();
+			try {
+				if(!parentDir.exists()) {
+					parentDir.mkdirs();
+				}
+				if (!file.exists()) {
+					file.createNewFile();
+				}
+				ImageIO.write(image, "jpg",file);
+				System.out.println("save image ");
+			}catch(IOException e) {
+				e.printStackTrace();
+			}
 		}
 
 		public void logintest() {
@@ -320,9 +358,6 @@ public class MainServer extends JFrame {
 				String dept_num = Profile.get(0).getDept_num();
 				String userImage = Profile.get(0).getImage();
 				System.out.println(userImage);
-				
-
-
 				
 				byte[] byteImage;
 				File imageFile = new File(userImage);

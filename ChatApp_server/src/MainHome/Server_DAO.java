@@ -19,7 +19,7 @@ public class Server_DAO {
 	private Statement stmt;
 	private ResultSet rs;
 
-	public void newUser(String name, String cn, String dept){
+	public void newUser(String name, String cn, String dept, String filePath){
 		try {
 			String sequery = "SELECT dept_ID from DEPARTMENT where dept_name = '"+dept+"'";
 			rs = stmt.executeQuery(sequery);
@@ -50,6 +50,11 @@ public class Server_DAO {
 			stmt.executeQuery(query);
 
 			System.out.println("emp_pos SQL : " + query);
+			
+			query = "UPDATE emp SET IMAGE  = '"+ filePath+"' WHERE CN  ='"+cn+"'";
+			stmt.executeQuery(query);
+			
+			System.out.println("image update SQL : " + query);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
