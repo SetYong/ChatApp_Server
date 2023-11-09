@@ -1,6 +1,9 @@
 package MainHome;
 
 import java.awt.BorderLayout;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -11,13 +14,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class MainServer extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -46,7 +47,7 @@ public class MainServer extends JFrame {
 		// 서버 입장
 		list = new ArrayList<MultiServerThread>();
 		try {
-			ServerSocket serverSocket = new ServerSocket(5020);
+			ServerSocket serverSocket = new ServerSocket(5010);
 			sop("서버 실행");
 			MultiServerThread mst = null;
 
@@ -105,7 +106,7 @@ public class MainServer extends JFrame {
 					String first = (String) ois.readObject();
 					sop("first : " + first);
 					String[] seperate = first.split("=0$0=");
-					
+
 					if (seperate[0].equals("[reset]")) {
 						sop("리셋 진행합니다.");
 						String id = (String) ois.readObject();
@@ -121,9 +122,8 @@ public class MainServer extends JFrame {
 						sop("초기화 한 사원 사번 : " + pwdup.get(0).getID());
 						sop("초기화 한 사원 이름 : " + pwdup.get(0).getPWD());
 						sop("-------------------------------------------------------");
-					} 
-					
-					
+					}
+
 					else if (seperate[0].equals("[SignUpDept]")) {
 						sop("signupdept 요청");
 						deptList = dao.deptList();
@@ -137,21 +137,19 @@ public class MainServer extends JFrame {
 
 							oos.writeObject(deptName);
 						}
-						sop((String)ois.readObject());
+						sop((String) ois.readObject());
 						if (true) {
 							sop("newUser 요청 새로운 노예는환영이야");
-							String newName = (String)ois.readObject();
-							String newCn = (String)ois.readObject();
-							String newDept = (String)ois.readObject();
-							sop("newName : "+newName+" newCn : "+newCn+" newDept : "+newDept);
+							String newName = (String) ois.readObject();
+							String newCn = (String) ois.readObject();
+							String newDept = (String) ois.readObject();
+							sop("newName : " + newName + " newCn : " + newCn + " newDept : " + newDept);
 							dao.newUser(newName, newCn, newDept);
 							sop("사원 계정 생성 완료");
 						}
 						sop("Signupdept 끝!");
-					}  
-					
-					
-					
+					}
+
 					else if (seperate[0].equals("[login]")) {
 						sop("로그인 진행합니다.");
 						while (true) {
@@ -304,6 +302,10 @@ public class MainServer extends JFrame {
 //			sop("[" + timeDate.format(today) + "] [" + user_name + " 연결종료]");
 		}
 
+		public void imagesend() {
+
+		}
+
 		public void logintest() {
 			try {
 				oos.writeObject(pass);
@@ -316,18 +318,30 @@ public class MainServer extends JFrame {
 				String email = Profile.get(0).getEmail();
 				String phone = Profile.get(0).getPhone();
 				String dept_num = Profile.get(0).getDept_num();
+				String userImage = Profile.get(0).getImage();
+				System.out.println(userImage);
+				
 
+
+				
+				byte[] byteImage;
+				File imageFile = new File(userImage);
+				BufferedImage buffImage = ImageIO.read(imageFile);
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				ImageIO.write(buffImage, "png", baos);
+				baos.flush();
+				byteImage = baos.toByteArray();
+				String reTodo = dao.receivetoDoList(user_id);
 				sop(name);
 				oos.writeObject(name);
 				oos.writeObject(email);
 				oos.writeObject(phone);
 				oos.writeObject(dept_num);
-
-				String reTodo = dao.receivetoDoList(user_id);
 				oos.writeObject(reTodo);
-
+				oos.writeObject(byteImage);
 				sop("사용자 정보 넘어가나?");
 			} catch (Exception e) {
+				e.printStackTrace();
 				sop("로그인 실패");
 			}
 		}

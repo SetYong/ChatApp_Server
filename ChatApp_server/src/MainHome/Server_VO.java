@@ -1,8 +1,10 @@
 package MainHome;
 
+import java.awt.Image;
+
 public class Server_VO {
 	private String id, pwd;
-	private String name, email, phone,dept_num, doing, done;
+	private String name, email, phone,dept_num, doing, image;
 	private int todoindex;
 	
 	public Server_VO() { }
@@ -21,20 +23,14 @@ public class Server_VO {
 		this.email = email;
 	}
 	
-	public Server_VO(String name, String email, String phone, String dept_num) {
+	public Server_VO(String name, String email, String phone, String dept_num, String image) {
 		this.name = name;
 		this.email = email;
 		this.phone = phone;
 		this.dept_num = dept_num;
+		this.image = image;
 	}
-	
-	public Server_VO(String id, String doing, String done, int todoindex) {
-		this.id = id;
-		this.doing = doing;
-		this.done = done;
-		this.todoindex = todoindex;
-	}
-	
+
 	public String getID() {return id;}
 	
 	public String getPWD() {return pwd;}
@@ -49,7 +45,7 @@ public class Server_VO {
 	
 	public String getDoing() {return doing;}
 	
-	public String getDone() {return done;}
+	public String getImage() {return image;}
 	
 	public int toDoIndex() {return todoindex;}
 }

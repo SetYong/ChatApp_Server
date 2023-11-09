@@ -1,5 +1,7 @@
 package MainHome;
 
+import java.io.InputStream;
+import java.io.ObjectOutputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -11,6 +13,7 @@ public class Server_DAO {
 	String url = "jdbc:oracle:thin:@localhost:1521:xe";
 	String user = "c##chatapp";
 	String password = "chatapp1234";
+
 
 	private Connection con;
 	private Statement stmt;
@@ -143,10 +146,15 @@ public class Server_DAO {
 					String email = rs2.getString("email");
 					String phone = rs2.getString("phone");
 					String dept_num = rs2.getString("dept_num");
+					String image = rs2.getString("image");
+					System.out.println("image : " + image);
 
-					Server_VO profile = new Server_VO(name, email, phone, dept_num);
+					Server_VO profile = new Server_VO(name, email, phone, dept_num, image);
 					Profile.add(profile);
 				}
+				
+					
+                    
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
