@@ -17,6 +17,12 @@ public class Server_VO {
 		this.id = id;
 		this.pwd = pwd;
 	}
+	
+	public Server_VO(int a, String name, String id) {
+		this.name = name;
+		this.id = id;
+	}
+	
 	public Server_VO(String pwd, String phone, String email) {
 		this.pwd = pwd;
 		this.phone = phone;

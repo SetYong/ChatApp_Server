@@ -157,8 +157,6 @@ public class Server_DAO {
 					Server_VO profile = new Server_VO(name, email, phone, dept_num, image);
 					Profile.add(profile);
 				}
-				
-					
                     
 			}
 		} catch (Exception e) {
@@ -269,7 +267,7 @@ public class Server_DAO {
 		try {
 			connDB();
 
-			String query = "SELECT name FROM EMP";
+			String query = "SELECT cn, name FROM EMP";
 			if (user_name != null) {
 				query += " WHERE name LIKE '%" + user_name+ "%'";
 			}
@@ -285,9 +283,10 @@ public class Server_DAO {
 				rsTree.beforeFirst();
 				while (rsTree.next()) {
 					System.out.println("");
+					String cn = rsTree.getString("cn");
 					String name = rsTree.getString("name");
-					System.out.println("dao rsTree while : "+ name);
-					Server_VO data = new Server_VO(name);
+					System.out.println("dao rsTree while : "+ name + ", dao rsTree cn : " + cn);
+					Server_VO data = new Server_VO(name, cn);
 					nameTree.add(data);
 				}
 			}
@@ -297,7 +296,7 @@ public class Server_DAO {
 		}
 		return nameTree;
 	}
-	
+
 	public ArrayList<Server_VO> deptList() {
 		ArrayList<Server_VO> deptList = new ArrayList<Server_VO>();
 		try {

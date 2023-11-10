@@ -5,9 +5,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
@@ -34,8 +32,6 @@ public class MainServer extends JFrame {
 	private Date today = new Date();;
 	private SimpleDateFormat timeDate = new SimpleDateFormat("HH:mm:ss a");
 
-//	private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
-
 	public MainServer() {
 		setTitle("메인서버 ver 1.0");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -50,7 +46,7 @@ public class MainServer extends JFrame {
 		// 서버 입장
 		list = new ArrayList<MultiServerThread>();
 		try {
-			ServerSocket serverSocket = new ServerSocket(5020);
+			ServerSocket serverSocket = new ServerSocket(5000);
 			sop("서버 실행");
 			MultiServerThread mst = null;
 
@@ -71,7 +67,6 @@ public class MainServer extends JFrame {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-//		executorService.scheduleAtFixedRate(() -> refreshAllClients(), 0, 10, TimeUnit.SECONDS);
 	}
 
 	public static void main(String[] args) {
@@ -83,7 +78,6 @@ public class MainServer extends JFrame {
 		private Server_DAO dao = new Server_DAO();
 		private ArrayList<Server_VO> Login;
 		private ArrayList<Server_VO> Profile;
-		private ArrayList<Server_VO> toDoList;
 		private ArrayList<Server_VO> pwdup;
 		private ArrayList<Server_VO> setProfile;
 		private ArrayList<Server_VO> nameTree;
@@ -95,11 +89,6 @@ public class MainServer extends JFrame {
 		private String filePath;
 		String user_id = null, user_pwd = null, user_name = null;
 		private SimpleDateFormat timeDate = new SimpleDateFormat("HH:mm:ss a");
-//		private boolean refreshRequested = false;
-
-//		public void sendRefreshSignal() {
-//			refreshRequested = true;
-//		}
 
 		@Override
 		public void run() {
@@ -107,16 +96,6 @@ public class MainServer extends JFrame {
 				ois = new ObjectInputStream(socket.getInputStream());
 				oos = new ObjectOutputStream(socket.getOutputStream());
 				
-//				byte[] byteImage;
-//				File imageFile = new File("C:/Users/Manic-063/git/repository/ChatApp_server/src/IMAGE/LOGO.png");
-//				BufferedImage buffImage = ImageIO.read(imageFile);
-//				ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//				ImageIO.write(buffImage, "png", baos);
-//				baos.flush();
-//				byteImage = baos.toByteArray();
-//				
-//				oos.writeObject(byteImage);
-//				
 				while (true) {
 					String first = (String) ois.readObject();
 					sop("first : " + first);
@@ -163,8 +142,6 @@ public class MainServer extends JFrame {
 							sop("newName : " + newName + " newCn : " + newCn + " newDept : " + newDept);
 							dao.newUser(newName, newCn, newDept, filePath);
 							
-							
-							
 							sop("사원 계정 생성 완료");
 						}
 						sop("Signupdept 끝!");
@@ -173,12 +150,6 @@ public class MainServer extends JFrame {
 					else if (seperate[0].equals("[login]")) {
 						sop("로그인 진행합니다.");
 						while (true) {
-//							if (refreshRequested) {
-//								// 새로고침 동작 또는 메시지 교환
-//								oos.writeObject("Refreshed");
-//								oos.flush();
-//								refreshRequested = false;
-//							}
 							sop("정보 읽기 ");
 							today = new Date();
 							user_id = (String) ois.readObject();
@@ -203,9 +174,7 @@ public class MainServer extends JFrame {
 
 							while (true) {
 								String second = (String) ois.readObject();
-//								String[] seperateChatbySet = second.split("=0$0=");
 								sop("Second : " + second);
-//								sop(seperateChatbySet[0]);
 
 								if (second.equals("[setprofile]")) {
 									oos.writeObject("[setprofile]");
@@ -231,7 +200,7 @@ public class MainServer extends JFrame {
 									String doing = (String) ois.readObject();
 									String state = (String) ois.readObject();
 
-									toDoList = dao.toDoList(userID, doing, state);
+									dao.toDoList(userID, doing, state);
 
 								} else if (second.equals("[nameTree]")) {
 									sop("nameTree 요청이 들어왔다");
@@ -242,17 +211,51 @@ public class MainServer extends JFrame {
 									nameTree = dao.nameTree(inpName);
 									oos.writeObject(nameTree.size());
 
-									String listname = "";
+									String listname = "", listcn ="";
 									for (int i = 0; i < nameTree.size(); i++) {
 										Server_VO data = (Server_VO) nameTree.get(i);
-										listname = data.getName();
+										listname = data.getID();
+										listcn = data.getPWD();
 										sop(listname);
 
 										oos.writeObject(listname);
+										oos.writeObject(listcn);
+										sop(listcn);
 									}
 									sop("nametree 끝낫을지도?");
+								} else if(second.equals("[searchPerson]")){
+									sop("[searchPerson 요청이 들어왔다!");
+									String searchP = (String)ois.readObject();
+									oos.writeObject("[searchPerson]");
+									Profile = dao.user_Profile(searchP);
+									
+									String name = Profile.get(0).getName();
+									String email = Profile.get(0).getEmail();
+									String phone = Profile.get(0).getPhone();
+									String dept_num = Profile.get(0).getDept_num();
+									String userImage = Profile.get(0).getImage();
+									sop("서치 정보 다적었다");
+									
+									byte[] byteImage;
+									File imageFile = new File(userImage);
+									BufferedImage buffImage = ImageIO.read(imageFile);
+									ByteArrayOutputStream baos = new ByteArrayOutputStream();
+									ImageIO.write(buffImage, "png", baos);
+									baos.flush();
+									byteImage = baos.toByteArray();
+									
+									sop("찾는 사람 정보 이제 보낸다!");
+									oos.writeObject(name);
+									sop(name);
+									oos.writeObject(email);
+									sop(email);
+									oos.writeObject(phone);
+									sop(phone);
+									oos.writeObject(dept_num);
+									sop(dept_num);
+									oos.writeObject(byteImage);
+									sop("찾은 사용자 정보 다보냈다!");
 								} else if (second.equals("[chat]")) {
-//									while (true) {
 									today = new Date();
 									String inp = (String) ois.readObject();
 									sop("inp : " + inp);
@@ -280,7 +283,6 @@ public class MainServer extends JFrame {
 												recipientOut.flush();
 												sop(timeDate.format(today) + "out / 발신자 : " + name + " 메세지 : " + message
 														+ " 수신자 :" + recipient);
-//												}
 											}
 										}
 									}
@@ -306,20 +308,6 @@ public class MainServer extends JFrame {
 				clientOutputStreams.remove(user_id);
 				sop(user_id + " disconnected");
 			}
-
-//			finally {
-//				today = new Date();
-//				list.remove(this);
-//				TextArea.append("[" + timeDate.format(today) + "] [" + socket.getInetAddress() + "] IP 주소의 " + user_name
-//						+ "님께서 종료하셨습니다.\n");
-//				TextField.setText("남은 사용자 수 : " + list.size());
-//				try {
-//					socket.close();
-//				} catch (IOException e) {
-//					e.printStackTrace();
-//				}
-//			}
-//			sop("[" + timeDate.format(today) + "] [" + user_name + " 연결종료]");
 		}
 
 		public void saveImage() throws IOException, ClassNotFoundException{
@@ -381,12 +369,6 @@ public class MainServer extends JFrame {
 			}
 		}
 	}
-
-//	private void refreshAllClients() {
-//		for (MultiServerThread clientThread : list) {
-//			clientThread.sendRefreshSignal();
-//		}
-//	}
 
 	public void sop(String text) {
 		System.out.println(text);
