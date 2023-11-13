@@ -46,7 +46,7 @@ public class MainServer extends JFrame {
 		// 서버 입장
 		list = new ArrayList<MultiServerThread>();
 		try {
-			ServerSocket serverSocket = new ServerSocket(5000);
+			ServerSocket serverSocket = new ServerSocket(5010);
 			sop("서버 실행");
 			MultiServerThread mst = null;
 
